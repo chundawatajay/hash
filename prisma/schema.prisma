@@ -8,11 +8,12 @@ datasource db {
 }
 
 model Token {
-  id         String   @id @default(cuid())
-  value      String
-  hash       String   @unique
+  id         String    @id @default(cuid())
+  hash       String    @unique
   expiresAt  DateTime?
-  createdAt  DateTime @default(now())
+  createdAt  DateTime  @default(now())
+  cupId      String    @unique @map("cup_id")
+  isApproved Boolean   @default(false)
 
   @@index([hash])
 }

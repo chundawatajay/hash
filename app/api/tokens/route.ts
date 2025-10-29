@@ -5,7 +5,7 @@ export async function GET() {
   const tokens = await listTokens()
   return NextResponse.json(
     tokens.map((t) => ({
-      value: t.value,
+      cupId: t.cupId,
       hash: t.hash,
       expiresAt: t.expiresAt,
       createdAt: t.createdAt,

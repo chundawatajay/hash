@@ -38,7 +38,7 @@ export default function TokenGenerator() {
     const res = await fetch("/api/generate", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ value, expiry }),
+      body: JSON.stringify({ cupId: value, expiry }),
     })
     if (!res.ok) {
       alert("Failed to generate")
@@ -67,12 +67,12 @@ export default function TokenGenerator() {
         <CardContent>
           <form onSubmit={onGenerate} className="flex flex-col md:flex-row gap-4 items-start space-y-2">
             <div className="w-full flex flex-col gap-2 md:max-w-sm">
-              <Label htmlFor="value">Input String</Label>
+              <Label htmlFor="value">CUP ID</Label>
               <Input
                 id="value"
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
-                placeholder="Enter a string..."
+                placeholder="Enter a CUP ID..."
               />
             </div>
             <div className="w-full flex flex-col gap-2 md:max-w-xs">

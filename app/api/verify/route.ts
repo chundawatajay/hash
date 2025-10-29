@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { findByHash, isExpired } from "@/lib/data-access"
+import { db } from "@/lib/db"
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
@@ -18,7 +19,7 @@ export async function GET(req: Request) {
     found: true,
     expired,
     token: {
-      value: rec.value,
+      value: rec.cupId,
       hash: rec.hash,
       expiresAt: rec.expiresAt,
       createdAt: rec.createdAt,
