@@ -12,7 +12,7 @@ model Token {
   hash       String    @unique
   expiresAt  DateTime?
   createdAt  DateTime  @default(now())
-  cupId      String    @unique @map("cup_id")
+  cupId      String    @default("") @map("cup_id")
   isApproved Boolean   @default(false)
 
   @@index([hash])

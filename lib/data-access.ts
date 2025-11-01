@@ -11,15 +11,20 @@ type TokenRecord = {
   createdAt: Date
 }
 
-export async function createToken(expiry: ExpiryOption): Promise<TokenRecord> {
-  const hash = generateHash(randomUUID())
-  const expiresAt = parseExpiry(expiry)
-  const createdAt = new Date()
-
-  const created = await db.token.create({
-    data: { cupId: "", hash, expiresAt, createdAt },
-  })
-  return created ?? null
+export async function createToken(expiry: ExpiryOption): Promise<TokenRecord | null> {
+ try {
+   const hash = generateHash(randomUUID())
+   const expiresAt = parseExpiry(expiry)
+   const createdAt = new Date()
+ 
+   const created = await db.token.create({
+     data: { cupId: "", hash, expiresAt, createdAt },
+   })
+   return created ?? null
+ } catch (error) {
+   console.log("error",error)
+   return null
+ }
 }
 
 export async function findByHash(hash: string): Promise<TokenRecord | null> {
@@ -28,12 +33,18 @@ export async function findByHash(hash: string): Promise<TokenRecord | null> {
 }
 
 export async function listTokens(): Promise<TokenRecord[]> {
-  const rows = await db.token.findMany({
-    where: { cupId: { not : "" } },
-    orderBy: { createdAt: "desc" },
-    take: 100,
-  })
-  return rows
+  try {
+    const rows = await db.token.findMany({
+      where: { cupId: { not : "" } },
+      orderBy: { createdAt: "desc" },
+      take: 100,
+    })
+
+    return rows ?? []
+  } catch (error) {
+    console.log("error",error)
+    return []
+  }
 }
 
 export function isExpired(rec: TokenRecord): boolean {

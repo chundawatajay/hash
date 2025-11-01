@@ -12,11 +12,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
 type TokenRow = {
-  value: string
+  cupId: string
   hash: string
   expiresAt: string | null
   createdAt: string
   expired: boolean
+}
+
+type TokensResponse = {
+  tokens: TokenRow[]
+  stats: {
+    totalKeys: number
+    totalActive: number
+  }
 }
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
@@ -31,7 +39,7 @@ export default function TokenGenerator() {
     null,
   )
 
-  const { data, isLoading } = useSWR<TokenRow[]>("/api/tokens", fetcher, { refreshInterval: 5000 })
+  const { data, isLoading } = useSWR<TokensResponse>("/api/tokens", fetcher, { refreshInterval: 5000 })
 
   async function onGenerate(e: React.FormEvent) {
     e.preventDefault()
@@ -74,6 +82,7 @@ export default function TokenGenerator() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="one-day">One day</SelectItem>
+                  <SelectItem value="one-week">One week</SelectItem>
                   <SelectItem value="one-month">One month</SelectItem>
                   <SelectItem value="one-year">One year</SelectItem>
                   <SelectItem value="infinite">Infinite</SelectItem>
@@ -135,6 +144,16 @@ export default function TokenGenerator() {
       <Card>
         <CardHeader>
           <CardTitle className="text-balance">Latest Tokens</CardTitle>
+          {data?.stats && (
+            <div className="flex gap-6 mt-2 text-sm text-muted-foreground">
+              <div>
+                <span className="font-medium">Total Keys:</span> {data.stats.totalKeys}
+              </div>
+              <div>
+                <span className="font-medium">Active Keys:</span> {data.stats.totalActive}
+              </div>
+            </div>
+          )}
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -154,14 +173,14 @@ export default function TokenGenerator() {
                     <TableCell colSpan={5}>Loading...</TableCell>
                   </TableRow>
                 )}
-                {!isLoading && data?.length === 0 && (
+                {!isLoading && data?.tokens?.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={5}>No tokens yet</TableCell>
                   </TableRow>
                 )}
-                {data?.map((t) => (
+                {data?.tokens?.map((t) => (
                   <TableRow key={t.hash}>
-                    <TableCell className="max-w-[240px] truncate">{t.value}</TableCell>
+                    <TableCell className="max-w-[240px] truncate">{t.cupId}</TableCell>
                     <TableCell className="font-mono max-w-[380px] truncate">{t.hash}</TableCell>
                     <TableCell>{t.expiresAt ? new Date(t.expiresAt).toLocaleString() : "Never"}</TableCell>
                     <TableCell>{new Date(t.createdAt).toLocaleString()}</TableCell>
