@@ -17,6 +17,7 @@ type TokenRow = {
   expiresAt: string | null
   createdAt: string
   expired: boolean
+  name: string
 }
 
 type TokensResponse = {
@@ -30,9 +31,9 @@ type TokensResponse = {
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
 export default function TokenGenerator() {
-  const [value, setValue] = useState("")
+  const [name, setName] = useState("")
   const [expiry, setExpiry] = useState("one-day")
-  const [generated, setGenerated] = useState<{ hash: string; expiresAt: string | null; createdAt: string } | null>(null)
+  const [generated, setGenerated] = useState<{ hash: string; expiresAt: string | null; createdAt: string; name: string } | null>(null)
 
   const [checkHash, setCheckHash] = useState("")
   const [verifyResult, setVerifyResult] = useState<null | { found: boolean; expired: boolean | null; token?: any }>(
@@ -46,7 +47,7 @@ export default function TokenGenerator() {
     const res = await fetch("/api/generate", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ expiry }),
+      body: JSON.stringify({ expiry, name }),
     })
     if (!res.ok) {
       alert("Failed to generate")
@@ -54,7 +55,7 @@ export default function TokenGenerator() {
     }
     const j = await res.json()
     setGenerated(j)
-    setValue("")
+    setName("")
     await mutate("/api/tokens")
   }
 
@@ -74,6 +75,15 @@ export default function TokenGenerator() {
         </CardHeader>
         <CardContent>
           <form onSubmit={onGenerate} className="flex flex-col md:flex-row gap-4 items-start space-y-2">
+            <div className="w-full flex flex-col gap-2 md:max-w-xs">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Enter name..."
+              />
+            </div>
             <div className="w-full flex flex-col gap-2 md:max-w-xs">
               <Label>Expiry</Label>
               <Select value={expiry} onValueChange={setExpiry}>
@@ -96,6 +106,11 @@ export default function TokenGenerator() {
 
           {generated && (
             <div className="mt-4 text-sm flex flex-col gap-2 items-start">
+              {generated.name && (
+                <div>
+                  <span className="font-medium">Name:</span> {generated.name}
+                </div>
+              )}
               <div>
                 <span className="font-medium">Hash:</span> {generated.hash}
               </div>
@@ -160,6 +175,7 @@ export default function TokenGenerator() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Name</TableHead>
                   <TableHead>Cup ID</TableHead>
                   <TableHead>Hash</TableHead>
                   <TableHead>Expires</TableHead>
@@ -170,16 +186,17 @@ export default function TokenGenerator() {
               <TableBody>
                 {isLoading && (
                   <TableRow>
-                    <TableCell colSpan={5}>Loading...</TableCell>
+                    <TableCell colSpan={6}>Loading...</TableCell>
                   </TableRow>
                 )}
                 {!isLoading && data?.tokens?.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={5}>No tokens yet</TableCell>
+                    <TableCell colSpan={6}>No tokens yet</TableCell>
                   </TableRow>
                 )}
                 {data?.tokens?.map((t) => (
                   <TableRow key={t.hash}>
+                    <TableCell className="max-w-[180px] truncate">{t.name || "-"}</TableCell>
                     <TableCell className="max-w-[240px] truncate">{t.cupId}</TableCell>
                     <TableCell className="font-mono max-w-[380px] truncate">{t.hash}</TableCell>
                     <TableCell>{t.expiresAt ? new Date(t.expiresAt).toLocaleString() : "Never"}</TableCell>

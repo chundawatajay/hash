@@ -1,6 +1,6 @@
 import { createHash, randomBytes } from "node:crypto"
 
-export type ExpiryOption = "one-day" | "one-month" | "one-year" | "infinite"
+export type ExpiryOption = "one-day" | "one-week" | "one-month" | "one-year" | "infinite"
 
 export function parseExpiry(option: ExpiryOption): Date | null {
   if (option === "infinite") return null
@@ -9,6 +9,10 @@ export function parseExpiry(option: ExpiryOption): Date | null {
   switch (option) {
     case "one-day": {
       d.setDate(d.getDate() + 1)
+      return d
+    }
+    case "one-week": {
+      d.setDate(d.getDate() + 7)
       return d
     }
     case "one-month": {

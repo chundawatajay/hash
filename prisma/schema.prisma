@@ -14,6 +14,7 @@ model Token {
   createdAt  DateTime  @default(now())
   cupId      String    @default("") @map("cup_id")
   isApproved Boolean   @default(false)
+  name       String    @default("")
 
   @@index([hash])
 }

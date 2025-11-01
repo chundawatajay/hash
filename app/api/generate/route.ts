@@ -6,12 +6,13 @@ export async function POST(req: Request) {
   try {
     const body = await req.json()
     const expiry = String(body?.expiry ?? "one-day") as ExpiryOption
+    const name = String(body?.name ?? "")
 
     if (!["one-day", "one-week", "one-month", "one-year", "infinite"].includes(expiry)) {
       return NextResponse.json({ error: "invalid expiry" }, { status: 400 })
     }
 
-    const created = await createToken(expiry)
+    const created = await createToken(expiry, name)
 
     if (!created) {
       return NextResponse.json({ error: "failed to generate" }, { status: 500 })
@@ -22,6 +23,7 @@ export async function POST(req: Request) {
       expiresAt: created.expiresAt,
       createdAt: created.createdAt,
       value: created.cupId,
+      name: created.name,
     })
   } catch (err: any) {
     return NextResponse.json({ error: "failed to generate" }, { status: 500 })

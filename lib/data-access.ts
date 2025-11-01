@@ -9,16 +9,17 @@ type TokenRecord = {
   hash?: string
   expiresAt: Date | null
   createdAt: Date
+  name?: string
 }
 
-export async function createToken(expiry: ExpiryOption): Promise<TokenRecord | null> {
+export async function createToken(expiry: ExpiryOption, name?: string): Promise<TokenRecord | null> {
  try {
    const hash = generateHash(randomUUID())
    const expiresAt = parseExpiry(expiry)
    const createdAt = new Date()
  
    const created = await db.token.create({
-     data: { cupId: "", hash, expiresAt, createdAt },
+     data: { cupId: "", hash, expiresAt, createdAt, name: name || "" },
    })
    return created ?? null
  } catch (error) {

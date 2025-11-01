@@ -9,6 +9,7 @@ export async function GET() {
     expiresAt: t.expiresAt,
     createdAt: t.createdAt,
     expired: isExpired(t),
+    name: t.name,
   }))
   
   const totalKeys = mappedTokens.length
